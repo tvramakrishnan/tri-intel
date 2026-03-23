@@ -125,7 +125,7 @@ export default function Home() {
           — Built for triathletes who want honest answers, not hype.
           <div className="mt-2">
             <a
-              href="https://www.linkedin.com/in/ramkivaidyanathan/"
+              href="https://www.linkedin.com/in/ramkiv/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs text-gray-400 hover:text-gray-500 transition-colors"
