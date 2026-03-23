@@ -15,14 +15,14 @@ export default function Home() {
         <section className="py-16 text-center">
           <div
             className="inline-block mb-5 px-3 py-1 rounded-full text-xs font-semibold tracking-widest uppercase"
-            style={{ backgroundColor: "#f0e8e4", color: "#C8502A" }}
+            style={{ backgroundColor: "#FFFFFF", border: "1px solid #C8502A", color: "#C8502A" }}
           >
             Triathlon Decision Tool
           </div>
 
           <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-5 leading-tight">
             Should you{" "}
-            <em style={{ color: "#C8502A", fontStyle: "italic" }}>register</em>
+            <em style={{ color: "#1A1816", fontStyle: "italic", fontWeight: 600 }}>register</em>
             <br />
             or defer?
           </h1>
@@ -74,18 +74,16 @@ export default function Home() {
             ].map((step) => (
               <div
                 key={step.n}
-                className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex gap-5"
+                className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 text-center"
               >
                 <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 mt-0.5"
-                  style={{ backgroundColor: "#C8502A" }}
+                  className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 mx-auto mb-3"
+                  style={{ backgroundColor: "#FFFFFF", border: "1px solid #C8502A", color: "#C8502A" }}
                 >
                   {step.n}
                 </div>
-                <div>
-                  <p className="font-semibold text-gray-900 mb-1">{step.title}</p>
-                  <p className="text-sm text-gray-500 leading-relaxed">{step.body}</p>
-                </div>
+                <p className="font-semibold text-gray-900 mb-1">{step.title}</p>
+                <p className="text-sm text-gray-500 leading-relaxed">{step.body}</p>
               </div>
             ))}
           </div>
@@ -130,7 +128,7 @@ export default function Home() {
               rel="noopener noreferrer"
               className="text-xs text-gray-400 hover:text-gray-500 transition-colors"
             >
-              Made by Ramki Vaidyanathan
+              Built by Ramki Vaidyanathan →
             </a>
           </div>
         </div>
