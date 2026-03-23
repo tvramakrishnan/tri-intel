@@ -9,17 +9,16 @@ type FormData = {
   raceDate: string;
   distance: string;
   location: string;
-  raceUrl: string;
+  raceUrl: string;          // kept in state, not shown as input
   weeklyHours: number;
   runningBaseline: string;
   swimmingComfort: string;
   cyclingExperience: string;
   workFamilyIntensity: string;
-  travelTolerance: string;
-  budget: string;
-  ageBand: string;
   additionalNotes: string;
 };
+
+// ─── Horizontal Pill Group ────────────────────────────────────────────────────
 
 type PillOption = {
   value: string;
@@ -27,7 +26,7 @@ type PillOption = {
   description: string;
 };
 
-const PillGroup = ({
+const HorizontalPills = ({
   options,
   selected,
   onSelect,
@@ -35,52 +34,51 @@ const PillGroup = ({
   options: PillOption[];
   selected: string;
   onSelect: (val: string) => void;
-}) => (
-  <div className="space-y-2">
-    {options.map((opt) => {
-      const isSelected = selected === opt.value;
-      return (
-        <button
-          key={opt.value}
-          type="button"
-          onClick={() => onSelect(opt.value)}
-          className="w-full text-left px-4 py-3 rounded-xl border-2 transition-all"
-          style={
-            isSelected
-              ? {
-                  backgroundColor: "#fff5f2",
-                  borderColor: "#C8502A",
-                  color: "#1f2937",
+}) => {
+  const selectedDesc = options.find((o) => o.value === selected)?.description;
+  return (
+    <>
+      <style>{`
+        .fl-pill { font-size: 13px; }
+        @media (max-width: 380px) { .fl-pill { font-size: 11px; } }
+      `}</style>
+      <div>
+        {/* Pill row — no wrap, horizontal scroll on narrow screens */}
+        <div className="flex flex-nowrap gap-2 mb-2 overflow-x-auto pb-1">
+          {options.map((opt) => {
+            const isSelected = selected === opt.value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => onSelect(opt.value)}
+                className="fl-pill px-4 py-2 rounded-full font-medium border-2 transition-all whitespace-nowrap flex-shrink-0"
+                style={
+                  isSelected
+                    ? { backgroundColor: "#C8502A", borderColor: "#C8502A", color: "white" }
+                    : { backgroundColor: "white", borderColor: "#e5e7eb", color: "#6b7280" }
                 }
-              : {
-                  backgroundColor: "white",
-                  borderColor: "#e5e7eb",
-                  color: "#374151",
-                }
-          }
-        >
-          <div className="flex items-center gap-2">
-            <div
-              className="w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center"
-              style={{
-                borderColor: isSelected ? "#C8502A" : "#d1d5db",
-                backgroundColor: isSelected ? "#C8502A" : "transparent",
-              }}
-            >
-              {isSelected && (
-                <div className="w-1.5 h-1.5 rounded-full bg-white" />
-              )}
-            </div>
-            <span className="font-semibold text-sm">{opt.label}</span>
-          </div>
-          <p className="text-xs text-gray-500 mt-1 ml-6 leading-snug">
-            {opt.description}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+        {/* Single description for selected pill only */}
+        {selectedDesc && (
+          <p
+            className="text-xs italic text-gray-400 mt-2 px-3 py-2 rounded-lg"
+            style={{ backgroundColor: "#F7F5F0" }}
+          >
+            {selectedDesc}
           </p>
-        </button>
-      );
-    })}
-  </div>
-);
+        )}
+      </div>
+    </>
+  );
+};
+
+// ─── Section Card ─────────────────────────────────────────────────────────────
 
 const SectionCard = ({
   number,
@@ -105,7 +103,7 @@ const SectionCard = ({
   </div>
 );
 
-// ─── Pill Option Definitions ─────────────────────────────────────────────────
+// ─── Pill Option Definitions ──────────────────────────────────────────────────
 
 const SWIM_OPTIONS: PillOption[] = [
   {
@@ -116,19 +114,17 @@ const SWIM_OPTIONS: PillOption[] = [
   {
     value: "basic-pool",
     label: "Basic pool",
-    description: "Can swim 400m continuously in a pool (Super Sprint ready)",
+    description: "Can swim 400m continuously in pool — Super Sprint ready",
   },
   {
     value: "comfortable-pool",
     label: "Comfortable pool",
-    description:
-      "750m+ freestyle, some open water experience (Sprint ready with prep)",
+    description: "750m+ freestyle, some open water experience — Sprint ready with prep",
   },
   {
     value: "open-water",
     label: "Open water",
-    description:
-      "Regularly swims open water, comfortable with sighting (Olympic/70.3 ready)",
+    description: "Regularly swims open water, comfortable sighting — Olympic / 70.3 ready",
   },
 ];
 
@@ -141,12 +137,12 @@ const RUN_OPTIONS: PillOption[] = [
   {
     value: "occasional",
     label: "Occasional",
-    description: "1–2x/week, comfortable up to 5km / 3.1mi",
+    description: "1-2x/week, comfortable up to 5km / 3.1mi",
   },
   {
     value: "regular",
     label: "Regular",
-    description: "3–4x/week, comfortable at 10km / 6.2mi",
+    description: "3-4x/week, comfortable at 10km / 6.2mi",
   },
   {
     value: "competitive",
@@ -159,7 +155,7 @@ const CYCLE_OPTIONS: PillOption[] = [
   {
     value: "no-bike",
     label: "No bike",
-    description: "Don't own a road/tri bike",
+    description: "Don't own a road or tri bike",
   },
   {
     value: "casual",
@@ -169,7 +165,7 @@ const CYCLE_OPTIONS: PillOption[] = [
   {
     value: "regular",
     label: "Regular",
-    description: "2–3x/week, comfortable at 40km / 25mi",
+    description: "2-3x/week, comfortable at 40km / 25mi",
   },
   {
     value: "competitive",
@@ -196,9 +192,6 @@ export default function EvaluatePage() {
     swimmingComfort: "",
     cyclingExperience: "",
     workFamilyIntensity: "",
-    travelTolerance: "",
-    budget: "",
-    ageBand: "",
     additionalNotes: "",
   });
 
@@ -210,15 +203,15 @@ export default function EvaluatePage() {
     setError("");
 
     if (!form.raceName || !form.raceDate || !form.distance || !form.location) {
-      setError("Please fill in all required fields in Race Details.");
+      setError("Please fill in all required fields in Section 1.");
       return;
     }
-    if (!form.runningBaseline || !form.swimmingComfort || !form.cyclingExperience) {
-      setError("Please select all training baseline options.");
+    if (!form.swimmingComfort || !form.runningBaseline || !form.cyclingExperience) {
+      setError("Please select your swim, run, and cycling baseline.");
       return;
     }
-    if (!form.workFamilyIntensity || !form.travelTolerance) {
-      setError("Please fill in all required life constraint fields.");
+    if (!form.workFamilyIntensity) {
+      setError("Please select your work / family intensity.");
       return;
     }
 
@@ -259,17 +252,18 @@ export default function EvaluatePage() {
       <div className="max-w-3xl mx-auto px-6 pb-16">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Evaluate a Race</h1>
-          <p className="text-gray-600">
+          <p className="text-gray-500">
             Answer honestly. The more accurate your inputs, the better your decision.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Section 1 — Race Details */}
-          <SectionCard number="1" title="Race Details">
+
+          {/* Section 1 — The race */}
+          <SectionCard number="1" title="The race">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Race Name <span style={{ color: "#C8502A" }}>*</span>
+                Race name <span style={{ color: "#C8502A" }}>*</span>
               </label>
               <input
                 type="text"
@@ -284,7 +278,7 @@ export default function EvaluatePage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Race Date <span style={{ color: "#C8502A" }}>*</span>
+                  Race date <span style={{ color: "#C8502A" }}>*</span>
                 </label>
                 <input
                   type="date"
@@ -304,21 +298,24 @@ export default function EvaluatePage() {
                 >
                   <option value="">Select distance</option>
                   <option value="Super Sprint">
-                    Super Sprint (400m swim · 10km bike · 2.5km run)
+                    Super Sprint (400m · 10km · 2.5km)
                   </option>
                   <option value="Sprint">
-                    Sprint (750m / 0.47mi swim · 20km / 12.4mi bike · 5km / 3.1mi run)
+                    Sprint (750m / 0.47mi · 20km / 12.4mi · 5km / 3.1mi)
                   </option>
                   <option value="Olympic">
-                    Olympic (1.5km / 0.93mi swim · 40km / 24.8mi bike · 10km / 6.2mi run)
+                    Olympic (1.5km / 0.93mi · 40km / 24.8mi · 10km / 6.2mi)
                   </option>
                   <option value="70.3">
-                    70.3 Half Iron (1.9km / 1.2mi swim · 90km / 56mi bike · 21.1km / 13.1mi run)
+                    70.3 Half Iron (1.9km / 1.2mi · 90km / 56mi · 21.1km / 13.1mi)
                   </option>
                   <option value="Full Ironman">
-                    Full Ironman (3.8km / 2.4mi swim · 180km / 112mi bike · 42.2km / 26.2mi run)
+                    Full Ironman (3.8km / 2.4mi · 180km / 112mi · 42.2km / 26.2mi)
                   </option>
                 </select>
+                <p className="text-xs text-gray-400 mt-1.5">
+                  Distance affects how we weight each factor in your assessment
+                </p>
               </div>
             </div>
 
@@ -335,23 +332,15 @@ export default function EvaluatePage() {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Race URL{" "}
-                <span className="text-gray-400 font-normal">(optional)</span>
-              </label>
-              <input
-                type="url"
-                value={form.raceUrl}
-                onChange={(e) => set("raceUrl", e.target.value)}
-                placeholder="https://..."
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 transition"
-              />
-            </div>
+            {/* Race URL — coming soon note */}
+            <p className="text-sm italic text-gray-400">
+              Paste a race URL to auto-fill — coming soon
+            </p>
           </SectionCard>
 
-          {/* Section 2 — Training Baseline */}
-          <SectionCard number="2" title="Training Baseline">
+          {/* Section 2 — Your training baseline */}
+          <SectionCard number="2" title="Your training baseline">
+            {/* Slider */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Average weekly training hours:{" "}
@@ -362,44 +351,49 @@ export default function EvaluatePage() {
               <input
                 type="range"
                 min={1}
-                max={20}
+                max={25}
                 value={form.weeklyHours}
                 onChange={(e) => set("weeklyHours", parseInt(e.target.value))}
                 className="w-full"
               />
-              <div className="flex justify-between text-xs text-gray-400 mt-1">
-                <span>1 hr</span>
-                <span>20 hrs</span>
+              <div className="flex justify-between text-xs text-gray-400 mt-2">
+                <span>Casual (1–6)</span>
+                <span>Moderate (7–12)</span>
+                <span>Serious (13–18)</span>
+                <span>Peak (19–25)</span>
               </div>
             </div>
 
+            {/* Swimming */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Swimming comfort <span style={{ color: "#C8502A" }}>*</span>
               </label>
-              <PillGroup
+              <HorizontalPills
                 options={SWIM_OPTIONS}
                 selected={form.swimmingComfort}
                 onSelect={(v) => set("swimmingComfort", v)}
               />
             </div>
 
+            {/* Running */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Running baseline <span style={{ color: "#C8502A" }}>*</span>
               </label>
-              <PillGroup
+              <HorizontalPills
                 options={RUN_OPTIONS}
                 selected={form.runningBaseline}
                 onSelect={(v) => set("runningBaseline", v)}
               />
             </div>
 
+            {/* Cycling */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Cycling experience <span style={{ color: "#C8502A" }}>*</span>
               </label>
-              <PillGroup
+              <HorizontalPills
                 options={CYCLE_OPTIONS}
                 selected={form.cyclingExperience}
                 onSelect={(v) => set("cyclingExperience", v)}
@@ -407,90 +401,42 @@ export default function EvaluatePage() {
             </div>
           </SectionCard>
 
-          {/* Section 3 — Life Constraints */}
-          <SectionCard number="3" title="Life Constraints">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Work / family intensity <span style={{ color: "#C8502A" }}>*</span>
-                </label>
-                <select
-                  value={form.workFamilyIntensity}
-                  onChange={(e) => set("workFamilyIntensity", e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 transition"
-                >
-                  <option value="">Select...</option>
-                  <option>Low</option>
-                  <option>Medium</option>
-                  <option>High</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Travel tolerance <span style={{ color: "#C8502A" }}>*</span>
-                </label>
-                <select
-                  value={form.travelTolerance}
-                  onChange={(e) => set("travelTolerance", e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 transition"
-                >
-                  <option value="">Select...</option>
-                  <option>Local</option>
-                  <option>Regional</option>
-                  <option>Anywhere</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Budget{" "}
-                  <span className="text-gray-400 font-normal">(optional)</span>
-                </label>
-                <select
-                  value={form.budget}
-                  onChange={(e) => set("budget", e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 transition"
-                >
-                  <option value="">Select...</option>
-                  <option>{"<$500"}</option>
-                  <option>$500–1,000</option>
-                  <option>$1,000–2,000</option>
-                  <option>$2,000+</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Age band{" "}
-                  <span className="text-gray-400 font-normal">(optional)</span>
-                </label>
-                <select
-                  value={form.ageBand}
-                  onChange={(e) => set("ageBand", e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 transition"
-                >
-                  <option value="">Select...</option>
-                  <option>Under 30</option>
-                  <option>30–39</option>
-                  <option>40–49</option>
-                  <option>50+</option>
-                </select>
-              </div>
-            </div>
-
+          {/* Section 3 — Your life right now */}
+          <SectionCard number="3" title="Your life right now">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Anything else I should know?{" "}
+                Work / family intensity <span style={{ color: "#C8502A" }}>*</span>
+              </label>
+              <select
+                value={form.workFamilyIntensity}
+                onChange={(e) => set("workFamilyIntensity", e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 transition"
+              >
+                <option value="">Select...</option>
+                <option value="Low">Light — flexible schedule, train any time</option>
+                <option value="Medium">Moderate — evenings and weekends free</option>
+                <option value="High">Heavy — limited windows, high demands</option>
+              </select>
+            </div>
+          </SectionCard>
+
+          {/* Section 4 — Anything else? */}
+          <SectionCard number="4" title="Anything else?">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Anything that should factor into your assessment?{" "}
                 <span className="text-gray-400 font-normal">(optional)</span>
               </label>
               <textarea
                 value={form.additionalNotes}
                 onChange={(e) => set("additionalNotes", e.target.value)}
-                placeholder="Injuries, previous race experience, specific concerns..."
+                placeholder="Injuries, upcoming travel during training, health factors..."
                 rows={3}
                 className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-gray-900 focus:outline-none focus:ring-2 transition resize-none"
               />
+              <p className="text-xs text-gray-400 mt-1.5">
+                This is read directly and factors into your verdict
+              </p>
             </div>
           </SectionCard>
 
@@ -503,8 +449,8 @@ export default function EvaluatePage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-4 rounded-full text-white font-semibold text-lg transition-all hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-            style={{ backgroundColor: "#C8502A" }}
+            className="w-full py-4 rounded-full text-white font-semibold text-lg transition-all hover:opacity-90 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+            style={{ backgroundColor: loading ? "#A8432A" : "#C8502A" }}
           >
             {loading ? (
               <>
@@ -523,20 +469,10 @@ export default function EvaluatePage() {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
                   />
                 </svg>
-                Analyzing your readiness...
+                Assessing your readiness...
               </>
             ) : (
-              <>
-                Get My Decision
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13 7l5 5m0 0l-5 5m5-5H6"
-                  />
-                </svg>
-              </>
+              "Get my verdict →"
             )}
           </button>
         </form>
