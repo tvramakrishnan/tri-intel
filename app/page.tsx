@@ -103,7 +103,7 @@ export default function Home() {
               had.&rdquo;
             </p>
             <p className="text-sm font-medium text-gray-500">
-              — Ramki, triathlete and builder
+              — Ramki Vaidyanathan, triathlete
             </p>
           </div>
         </section>
@@ -123,6 +123,16 @@ export default function Home() {
             FinishLine
           </span>{" "}
           — Built for triathletes who want honest answers, not hype.
+          <div className="mt-2">
+            <a
+              href="https://www.linkedin.com/in/ramkivaidyanathan/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-gray-400 hover:text-gray-500 transition-colors"
+            >
+              Made by Ramki Vaidyanathan
+            </a>
+          </div>
         </div>
       </footer>
     </div>
