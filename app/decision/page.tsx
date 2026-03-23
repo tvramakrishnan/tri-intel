@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 // ─── Color constants ──────────────────────────────────────────────────────────
 const REGISTER_COLOR = "#2E7D4F";
@@ -96,6 +97,7 @@ function Card({ title, children }: { title: React.ReactNode; children: React.Rea
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function DecisionPage() {
+  const router = useRouter();
   const [result, setResult] = useState<DecisionResult | null>(null);
   const [raceName, setRaceName] = useState("");
   const [assessedDate, setAssessedDate] = useState("");
@@ -421,13 +423,17 @@ export default function DecisionPage() {
 
         {/* Single CTA */}
         <div className="flex justify-center">
-          <Link
-            href="/evaluate"
+          <button
+            type="button"
+            onClick={() => {
+              try { sessionStorage.removeItem("finishline-form-draft"); } catch {}
+              router.push("/evaluate");
+            }}
             className="px-8 py-3 rounded-full font-semibold border-2 transition-all hover:bg-white text-center"
             style={{ borderColor: ACCENT_COLOR, color: ACCENT_COLOR }}
           >
             Evaluate another race
-          </Link>
+          </button>
         </div>
       </div>
     </div>

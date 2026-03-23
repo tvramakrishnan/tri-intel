@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -66,10 +66,7 @@ const HorizontalPills = ({
         </div>
         {/* Single description for selected pill only */}
         {selectedDesc && (
-          <p
-            className="text-xs italic text-gray-400 mt-2 px-3 py-2 rounded-lg"
-            style={{ backgroundColor: "#F7F5F0" }}
-          >
+          <p style={{ fontSize: 12, color: "#6B6660", fontStyle: "italic", marginTop: 6 }}>
             {selectedDesc}
           </p>
         )}
@@ -181,19 +178,39 @@ export default function EvaluatePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [form, setForm] = useState<FormData>({
-    raceName: "",
-    raceDate: "",
-    distance: "",
-    location: "",
-    raceUrl: "",
-    weeklyHours: 6,
-    runningBaseline: "",
-    swimmingComfort: "",
-    cyclingExperience: "",
-    workFamilyIntensity: "",
-    additionalNotes: "",
+  const STORAGE_KEY = "finishline-form-draft";
+
+  const [form, setForm] = useState<FormData>(() => {
+    const defaults: FormData = {
+      raceName: "",
+      raceDate: "",
+      distance: "",
+      location: "",
+      raceUrl: "",
+      weeklyHours: 6,
+      runningBaseline: "",
+      swimmingComfort: "",
+      cyclingExperience: "",
+      workFamilyIntensity: "",
+      additionalNotes: "",
+    };
+    if (typeof window === "undefined") return defaults;
+    try {
+      const saved = sessionStorage.getItem(STORAGE_KEY);
+      return saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
+    } catch {
+      return defaults;
+    }
   });
+
+  // Persist form to sessionStorage on every change
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(form));
+    } catch {
+      // ignore quota errors
+    }
+  }, [form]);
 
   const set = (key: keyof FormData, value: string | number) =>
     setForm((prev) => ({ ...prev, [key]: value }));
