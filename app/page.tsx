@@ -44,7 +44,7 @@ export default function Home() {
               Evaluate a Race →
             </Link>
             <p className="text-sm text-gray-400">
-              Free · Takes 3 minutes · No account needed
+              Free · Under 90 seconds · No account needed
             </p>
           </div>
         </section>
