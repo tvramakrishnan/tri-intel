@@ -26,7 +26,8 @@ type DecisionResult = {
     timeline: ScoreComponent;
     swim: ScoreComponent;
     run: ScoreComponent;
-    cycle: ScoreComponent;
+    bike: ScoreComponent;
+    experience: ScoreComponent;
     lifestyle: ScoreComponent;
   };
   distanceInfo: { name: string; swim: string; bike: string; run: string };
@@ -248,7 +249,7 @@ export default function DecisionPage() {
                 <span className="font-bold ml-0.5" style={{ color: scoreColor }}>
                   {result.score} / 100
                 </span>
-                <Tooltip text="Your total score across timeline, swim, run, cycle and lifestyle. 70+ = strong readiness for this distance" />
+                <Tooltip text="Your total score across timeline, swim, bike, run, lifestyle and experience. 70+ = strong readiness for this distance" />
               </span>
             )}
           </div>
@@ -376,7 +377,7 @@ export default function DecisionPage() {
               <ScoreBar label="Timeline" component={result.scoreBreakdown.timeline} />
               <ScoreBar label="Swimming" component={result.scoreBreakdown.swim} />
               <ScoreBar label="Running" component={result.scoreBreakdown.run} />
-              <ScoreBar label="Cycling" component={result.scoreBreakdown.cycle} />
+              <ScoreBar label="Cycling" component={result.scoreBreakdown.bike} />
               <ScoreBar label="Lifestyle" component={result.scoreBreakdown.lifestyle} />
             </div>
           </div>

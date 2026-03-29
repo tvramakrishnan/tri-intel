@@ -4,10 +4,11 @@ export type ScoringInput = {
   distance: string;         // "Super Sprint" | "Sprint" | "Olympic" | "70.3" | "Full Ironman"
   raceDate: string;         // ISO date string "YYYY-MM-DD"
   weeklyHours: number;
-  swimmingComfort: string;  // 'cannot-swim' | 'basic-pool' | 'comfortable-pool' | 'open-water'
-  runningBaseline: string;  // 'non-runner' | 'occasional' | 'regular' | 'competitive'
-  cyclingExperience: string;// 'no-bike' | 'casual' | 'regular' | 'competitive'
+  swimLevel: string;        // 'cannot-swim' | 'basic-pool' | 'comfortable-pool' | 'open-water'
+  runLevel: string;         // 'non-runner' | 'occasional' | 'regular' | 'competitive'
+  bikeLevel: string;        // 'no-bike' | 'casual' | 'regular' | 'competitive'
   workFamilyIntensity: string; // 'Low' | 'Medium' | 'High'
+  priorExperience: string;  // 'none' | 'novice' | 'developing' | 'experienced' | 'veteran'
 };
 
 export type ScoreComponent = {
@@ -21,12 +22,13 @@ export type ScoringResult = {
   confidence: "High" | "Medium" | "Low";
   score: number;
   hardDeferReason: string | null;
-  scoreBreakdown: {
-    timeline: ScoreComponent; // max 30
-    swim: ScoreComponent;     // max 15
-    run: ScoreComponent;      // max 15
-    cycle: ScoreComponent;    // max 10
-    lifestyle: ScoreComponent;// max 30
+scoreBreakdown: {
+    timeline: ScoreComponent;    // max 26
+    swim: ScoreComponent;        // max 13
+    run: ScoreComponent;         // max 13
+    bike: ScoreComponent;        // max 9
+    lifestyle: ScoreComponent;   // max 26
+    experience: ScoreComponent;  // max 13
   };
   distanceInfo: {
     name: string;
@@ -102,9 +104,9 @@ function checkHardDefer(
   input: ScoringInput,
   weeks: number
 ): string | null {
-  const { distance, swimmingComfort, runningBaseline, cyclingExperience, weeklyHours } = input;
+  const { distance, swimLevel, runLevel, bikeLevel, weeklyHours } = input;
 
-  if (swimmingComfort === "cannot-swim") {
+  if (swimLevel === "cannot-swim") {
     return "Cannot swim — swimming is non-negotiable in triathlon.";
   }
   if (weeks < 4) {
@@ -112,19 +114,19 @@ function checkHardDefer(
   }
   if (
     isOlympicOrAbove(distance) &&
-    (swimmingComfort === "basic-pool" || swimmingComfort === "cannot-swim")
+    (swimLevel === "basic-pool" || swimLevel === "cannot-swim")
   ) {
     return "Olympic+ distances require open-water swimming comfort.";
   }
   if (
     isLongDistance(distance) &&
-    runningBaseline === "non-runner"
+    runLevel === "non-runner"
   ) {
     return "70.3/Ironman run legs require a solid running base — 21km or 42km on foot demands consistent run training.";
   }
   if (
     distance === "Full Ironman" &&
-    (cyclingExperience === "no-bike" || cyclingExperience === "casual")
+    (bikeLevel === "no-bike" || bikeLevel === "casual")
   ) {
     return "Full Ironman requires a strong cycling base — the 180km / 112mi bike leg demands regular long rides.";
   }
@@ -179,7 +181,7 @@ function scoreTimeline(distance: string, weeks: number): ScoreComponent {
 
 // ─── Swim Scoring (0–15) ─────────────────────────────────────────────────────
 
-function scoreSwim(distance: string, swimmingComfort: string): ScoreComponent {
+function scoreSwim(distance: string, swimLevel: string): ScoreComponent {
   type SwimMatrix = Record<string, Record<string, number>>;
 
   const matrix: SwimMatrix = {
@@ -189,7 +191,7 @@ function scoreSwim(distance: string, swimmingComfort: string): ScoreComponent {
     "open-water":      { "Super Sprint": 15, Sprint: 15, Olympic: 15, "70.3": 15, "Full Ironman": 12 },
   };
 
-  const row = matrix[swimmingComfort] ?? { [distance]: 0 };
+  const row = matrix[swimLevel] ?? { [distance]: 0 };
   const score = row[distance] ?? 0;
 
   const comfortLabels: Record<string, string> = {
@@ -199,7 +201,7 @@ function scoreSwim(distance: string, swimmingComfort: string): ScoreComponent {
     "open-water": "Open water swimmer",
   };
 
-  const label = `${comfortLabels[swimmingComfort] ?? swimmingComfort} — ${
+  const label = `${comfortLabels[swimLevel] ?? swimLevel} — ${
     score >= 12
       ? "well matched to this distance"
       : score >= 8
@@ -212,7 +214,7 @@ function scoreSwim(distance: string, swimmingComfort: string): ScoreComponent {
 
 // ─── Run Scoring (0–15) ──────────────────────────────────────────────────────
 
-function scoreRun(distance: string, runningBaseline: string): ScoreComponent {
+function scoreRun(distance: string, runLevel: string): ScoreComponent {
   const baseScores: Record<string, number> = {
     "non-runner": 3,
     occasional: 8,
@@ -220,12 +222,12 @@ function scoreRun(distance: string, runningBaseline: string): ScoreComponent {
     competitive: 15,
   };
 
-  let score = baseScores[runningBaseline] ?? 0;
+  let score = baseScores[runLevel] ?? 0;
 
-  if (isOlympicOrAbove(distance) && runningBaseline === "non-runner") {
+  if (isOlympicOrAbove(distance) && runLevel === "non-runner") {
     score -= 5;
   }
-  if (isLongDistance(distance) && runningBaseline === "occasional") {
+  if (isLongDistance(distance) && runLevel === "occasional") {
     score -= 3;
   }
 
@@ -238,7 +240,7 @@ function scoreRun(distance: string, runningBaseline: string): ScoreComponent {
     competitive: "Competitive runner",
   };
 
-  const label = `${baselineLabels[runningBaseline] ?? runningBaseline} — ${
+  const label = `${baselineLabels[runLevel] ?? runLevel} — ${
     score >= 12
       ? "solid running base for this distance"
       : score >= 8
@@ -251,9 +253,9 @@ function scoreRun(distance: string, runningBaseline: string): ScoreComponent {
 
 // ─── Cycle Scoring (0–10) ────────────────────────────────────────────────────
 
-function scoreCycle(
+function scoreBike(
   distance: string,
-  cyclingExperience: string
+  bikeLevel: string
 ): ScoreComponent {
   const baseScores: Record<string, number> = {
     "no-bike": 0,
@@ -262,14 +264,14 @@ function scoreCycle(
     competitive: 10,
   };
 
-  let score = baseScores[cyclingExperience] ?? 0;
+  let score = baseScores[bikeLevel] ?? 0;
 
-  if (isLongDistance(distance) && cyclingExperience === "casual") {
+  if (isLongDistance(distance) && bikeLevel === "casual") {
     score -= 3;
   }
   if (
     distance === "Full Ironman" &&
-    (cyclingExperience === "regular" || cyclingExperience === "casual" || cyclingExperience === "no-bike")
+    (bikeLevel === "regular" || bikeLevel === "casual" || bikeLevel === "no-bike")
   ) {
     score -= 3;
   }
@@ -283,7 +285,7 @@ function scoreCycle(
     competitive: "Competitive cyclist",
   };
 
-  const label = `${expLabels[cyclingExperience] ?? cyclingExperience} — ${
+  const label = `${expLabels[bikeLevel] ?? bikeLevel} — ${
     score >= 7
       ? "comfortable on the bike at this distance"
       : score >= 4
@@ -334,6 +336,32 @@ function scoreLifestyle(
   return { score, max: 30, label };
 }
 
+
+// ─── Experience Scoring (0–13) ───────────────────────────────────────────────
+
+function scoreExperience(priorExperience: string): ScoreComponent {
+  const scores: Record<string, number> = {
+    "none":        0,
+    "novice":      4,
+    "developing":  7,
+    "experienced": 10,
+    "veteran":     13,
+  };
+  const score = scores[priorExperience] ?? 0;
+  const labels: Record<string, string> = {
+    "none":        "First-timer — no prior triathlon race experience",
+    "novice":      "Getting started — 1–2 triathlons completed",
+    "developing":  "Building experience — 3–5 races, Sprint or Olympic",
+    "experienced": "Seasoned racer — 6+ Sprints/Olympics or 1–2 Half-Irons",
+    "veteran":     "Veteran — 3+ Half-Irons or an Ironman finish",
+  };
+  return {
+    score,
+    max: 13,
+    label: labels[priorExperience] ?? "Unknown experience level",
+  };
+}
+
 // ─── Main Export ─────────────────────────────────────────────────────────────
 
 export function calculateReadiness(input: ScoringInput): ScoringResult {
@@ -341,9 +369,9 @@ export function calculateReadiness(input: ScoringInput): ScoringResult {
     distance,
     raceDate,
     weeklyHours,
-    swimmingComfort,
-    runningBaseline,
-    cyclingExperience,
+    swimLevel,
+    runLevel,
+    bikeLevel,
     workFamilyIntensity,
   } = input;
 
@@ -354,12 +382,13 @@ export function calculateReadiness(input: ScoringInput): ScoringResult {
 
   // Score all components regardless (used for display even on hard defer)
   const timeline = scoreTimeline(distance, weeks);
-  const swim = scoreSwim(distance, swimmingComfort);
-  const run = scoreRun(distance, runningBaseline);
-  const cycle = scoreCycle(distance, cyclingExperience);
+  const swim = scoreSwim(distance, swimLevel);
+  const run = scoreRun(distance, runLevel);
+  const bike = scoreBike(distance, bikeLevel);
   const lifestyle = scoreLifestyle(distance, weeklyHours, workFamilyIntensity);
+  const experience = scoreExperience(input.priorExperience);
 
-  const score = timeline.score + swim.score + run.score + cycle.score + lifestyle.score;
+  const score = timeline.score + swim.score + run.score + bike.score + lifestyle.score + experience.score;
 
   // Distance info
   const distanceDef = DISTANCE_INFO[distance] ?? {
@@ -376,7 +405,7 @@ export function calculateReadiness(input: ScoringInput): ScoringResult {
       confidence: "High",
       score,
       hardDeferReason,
-      scoreBreakdown: { timeline, swim, run, cycle, lifestyle },
+      scoreBreakdown: { timeline, swim, run, bike, lifestyle, experience },
       distanceInfo,
     };
   }
@@ -404,7 +433,7 @@ export function calculateReadiness(input: ScoringInput): ScoringResult {
     confidence,
     score,
     hardDeferReason: null,
-    scoreBreakdown: { timeline, swim, run, cycle, lifestyle },
+    scoreBreakdown: { timeline, swim, run, bike, lifestyle, experience },
     distanceInfo,
   };
 }

@@ -11,9 +11,10 @@ type FormData = {
   location: string;
   raceUrl: string;          // kept in state, not shown as input
   weeklyHours: number;
-  runningBaseline: string;
-  swimmingComfort: string;
-  cyclingExperience: string;
+  runLevel: string;
+  swimLevel: string;
+  bikeLevel: string;
+  priorExperience: string;
   workFamilyIntensity: string;
   additionalNotes: string;
 };
@@ -148,7 +149,36 @@ const RUN_OPTIONS: PillOption[] = [
   },
 ];
 
-const CYCLE_OPTIONS: PillOption[] = [
+
+const EXPERIENCE_OPTIONS: PillOption[] = [
+  {
+    value: "none",
+    label: "First-timer",
+    description: "Never done a triathlon",
+  },
+  {
+    value: "novice",
+    label: "Getting started",
+    description: "Completed 1–2 triathlons",
+  },
+  {
+    value: "developing",
+    label: "Building experience",
+    description: "3–5 races, mostly Sprint or Olympic",
+  },
+  {
+    value: "experienced",
+    label: "Seasoned racer",
+    description: "6+ Sprints/Olympics, or 1–2 Half-Irons",
+  },
+  {
+    value: "veteran",
+    label: "Veteran",
+    description: "3+ Half-Irons or an Ironman finish",
+  },
+];
+
+const BIKE_OPTIONS: PillOption[] = [
   {
     value: "no-bike",
     label: "No bike",
@@ -188,9 +218,10 @@ export default function EvaluatePage() {
       location: "",
       raceUrl: "",
       weeklyHours: 6,
-      runningBaseline: "",
-      swimmingComfort: "",
-      cyclingExperience: "",
+      runLevel: "",
+      swimLevel: "",
+      bikeLevel: "",
+      priorExperience: "",
       workFamilyIntensity: "",
       additionalNotes: "",
     };
@@ -223,8 +254,8 @@ export default function EvaluatePage() {
       setError("Please fill in all required fields in Section 1.");
       return;
     }
-    if (!form.swimmingComfort || !form.runningBaseline || !form.cyclingExperience) {
-      setError("Please select your swim, run, and cycling baseline.");
+    if (!form.swimLevel || !form.runLevel || !form.bikeLevel || !form.priorExperience) {
+      setError("Please select your swim, bike, run, and race experience.");
       return;
     }
     if (!form.workFamilyIntensity) {
@@ -384,36 +415,36 @@ export default function EvaluatePage() {
             {/* Swimming */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Swimming comfort <span style={{ color: "#C8502A" }}>*</span>
+                Swim <span style={{ color: "#C8502A" }}>*</span>
               </label>
               <HorizontalPills
                 options={SWIM_OPTIONS}
-                selected={form.swimmingComfort}
-                onSelect={(v) => set("swimmingComfort", v)}
+                selected={form.swimLevel}
+                onSelect={(v) => set("swimLevel", v)}
               />
             </div>
 
             {/* Running */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Running baseline <span style={{ color: "#C8502A" }}>*</span>
+                Run <span style={{ color: "#C8502A" }}>*</span>
               </label>
               <HorizontalPills
                 options={RUN_OPTIONS}
-                selected={form.runningBaseline}
-                onSelect={(v) => set("runningBaseline", v)}
+                selected={form.runLevel}
+                onSelect={(v) => set("runLevel", v)}
               />
             </div>
 
             {/* Cycling */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Cycling experience <span style={{ color: "#C8502A" }}>*</span>
+                Bike <span style={{ color: "#C8502A" }}>*</span>
               </label>
               <HorizontalPills
-                options={CYCLE_OPTIONS}
-                selected={form.cyclingExperience}
-                onSelect={(v) => set("cyclingExperience", v)}
+                options={BIKE_OPTIONS}
+                selected={form.bikeLevel}
+                onSelect={(v) => set("bikeLevel", v)}
               />
             </div>
           </SectionCard>

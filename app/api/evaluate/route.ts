@@ -19,9 +19,9 @@ export async function POST(req: NextRequest) {
       location,
       raceUrl,
       weeklyHours,
-      runningBaseline,
-      swimmingComfort,
-      cyclingExperience,
+      runLevel,
+      swimLevel,
+      bikeLevel,
       workFamilyIntensity,
       travelTolerance,
       budget,
@@ -34,10 +34,11 @@ export async function POST(req: NextRequest) {
       distance,
       raceDate,
       weeklyHours,
-      swimmingComfort,
-      runningBaseline,
-      cyclingExperience,
+      swimLevel,
+      runLevel,
+      bikeLevel,
       workFamilyIntensity,
+      priorExperience: body.priorExperience ?? "none",
     });
 
     const { scoreBreakdown, distanceInfo, hardDeferReason } = scoring;
@@ -51,7 +52,7 @@ SCORE BREAKDOWN:
 - Timeline: ${scoreBreakdown.timeline.score}/${scoreBreakdown.timeline.max} — ${scoreBreakdown.timeline.label}
 - Swimming: ${scoreBreakdown.swim.score}/${scoreBreakdown.swim.max} — ${scoreBreakdown.swim.label}
 - Running: ${scoreBreakdown.run.score}/${scoreBreakdown.run.max} — ${scoreBreakdown.run.label}
-- Cycling: ${scoreBreakdown.cycle.score}/${scoreBreakdown.cycle.max} — ${scoreBreakdown.cycle.label}
+- Cycling: ${scoreBreakdown.bike.score}/${scoreBreakdown.bike.max} — ${scoreBreakdown.bike.label}
 - Lifestyle: ${scoreBreakdown.lifestyle.score}/${scoreBreakdown.lifestyle.max} — ${scoreBreakdown.lifestyle.label}
 
 RACE DETAILS:
@@ -63,9 +64,9 @@ ${raceUrl ? `- Race URL: ${raceUrl}` : ""}
 
 ATHLETE PROFILE:
 - Weekly training hours: ${weeklyHours} hrs/week
-- Swimming comfort: ${swimmingComfort}
-- Running baseline: ${runningBaseline}
-- Cycling experience: ${cyclingExperience}
+- Swimming comfort: ${swimLevel}
+- Running baseline: ${runLevel}
+- Cycling experience: ${bikeLevel}
 - Work/family intensity: ${workFamilyIntensity}
 - Travel tolerance: ${travelTolerance}
 ${budget ? `- Budget: ${budget}` : ""}
