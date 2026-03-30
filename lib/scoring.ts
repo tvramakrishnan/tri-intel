@@ -253,6 +253,12 @@ function scoreRun(distance: string, runLevel: string): ScoreComponent {
   if (isOlympicOrAbove(distance) && runLevel === "non-runner") {
     score -= 5;
   }
+  if (distance === "Sprint" && runLevel === "non-runner") {
+    score -= 5;
+  }
+  if (isOlympicOrAbove(distance) && runLevel === "occasional") {
+    score -= 8;
+  }
   if (isLongDistance(distance) && runLevel === "occasional") {
     score -= 3;
   }
@@ -413,6 +419,11 @@ export function calculateReadiness(input: ScoringInput): ScoringResult {
   const bike = scoreBike(distance, bikeLevel);
   const lifestyle = scoreLifestyle(distance, weeklyHours, workFamilyIntensity);
   const experience = scoreExperience(input.priorExperience);
+
+  // Experience cannot compensate for a zeroed run at Olympic distance
+  if (run.score === 0 && distance === "Olympic") {
+    experience.score = 0;
+  }
 
   const score = timeline.score + swim.score + run.score + bike.score + lifestyle.score + experience.score;
 
