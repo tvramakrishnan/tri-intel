@@ -1,0 +1,402 @@
+[
+  {
+    "id": "P1-A",
+    "persona": "Marcus, The Bucket Lister",
+    "description": "Full Ironman hopeful who cannot swim — absolute blocker",
+    "weeks": 20,
+    "input": {
+      "distance": "Full Ironman",
+      "swimLevel": "cannot-swim",
+      "runLevel": "regular",
+      "bikeLevel": "regular",
+      "weeklyHours": 8,
+      "priorExperience": "none",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "DEFER",
+    "expected_confidence": "High",
+    "expected_mechanism": "hard-rule: cannot-swim",
+    "will_fail": false,
+    "notes": ""
+  },
+  {
+    "id": "P1-B",
+    "persona": "Marcus, The Bucket Lister",
+    "description": "Full Ironman with zero triathlon experience — experience-gap rule",
+    "weeks": 36,
+    "input": {
+      "distance": "Full Ironman",
+      "swimLevel": "comfortable-pool",
+      "runLevel": "regular",
+      "bikeLevel": "regular",
+      "weeklyHours": 8,
+      "priorExperience": "none",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "DEFER",
+    "expected_confidence": "High",
+    "expected_mechanism": "hard-rule: ironman+none",
+    "will_fail": false,
+    "notes": ""
+  },
+  {
+    "id": "P1-C",
+    "persona": "Marcus, The Bucket Lister",
+    "description": "70.3 with basic-pool swim — Olympic+ swim rule fires",
+    "weeks": 16,
+    "input": {
+      "distance": "70.3",
+      "swimLevel": "basic-pool",
+      "runLevel": "regular",
+      "bikeLevel": "regular",
+      "weeklyHours": 7,
+      "priorExperience": "none",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "DEFER",
+    "expected_confidence": "High",
+    "expected_mechanism": "hard-rule: 70.3+basic-pool",
+    "will_fail": false,
+    "notes": ""
+  },
+  {
+    "id": "P1-D",
+    "persona": "Marcus, The Bucket Lister",
+    "description": "70.3 with open-water swim, no experience — raised threshold should push to DEFER",
+    "weeks": 20,
+    "input": {
+      "distance": "70.3",
+      "swimLevel": "open-water",
+      "runLevel": "regular",
+      "bikeLevel": "regular",
+      "weeklyHours": 8,
+      "priorExperience": "none",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "REGISTER",
+    "expected_confidence": "Medium",
+    "expected_mechanism": "score-only: raised threshold 70.3+none",
+    "will_fail": false,
+    "notes": "Score clears raised threshold of 56 — REGISTER Medium is correct for this profile."
+  },
+  {
+    "id": "P2-A",
+    "persona": "Priya, The Tentative First-Timer",
+    "description": "Sprint with strong fundamentals — should clear REGISTER Medium comfortably",
+    "weeks": 10,
+    "input": {
+      "distance": "Sprint",
+      "swimLevel": "open-water",
+      "runLevel": "regular",
+      "bikeLevel": "regular",
+      "weeklyHours": 6,
+      "priorExperience": "none",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "REGISTER",
+    "expected_confidence": "Medium",
+    "expected_mechanism": "score-only",
+    "will_fail": false,
+    "notes": ""
+  },
+  {
+    "id": "P2-B",
+    "persona": "Priya, The Tentative First-Timer",
+    "description": "Sprint — tightest REGISTER case with comfortable-pool and casual bike",
+    "weeks": 8,
+    "input": {
+      "distance": "Sprint",
+      "swimLevel": "comfortable-pool",
+      "runLevel": "regular",
+      "bikeLevel": "casual",
+      "weeklyHours": 5,
+      "priorExperience": "none",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "REGISTER",
+    "expected_confidence": "Medium",
+    "expected_mechanism": "score-only: tightest case",
+    "will_fail": false,
+    "notes": ""
+  },
+  {
+    "id": "P2-C",
+    "persona": "Priya, The Tentative First-Timer",
+    "description": "Olympic with solid profile — expects REGISTER Medium",
+    "weeks": 14,
+    "input": {
+      "distance": "Olympic",
+      "swimLevel": "open-water",
+      "runLevel": "regular",
+      "bikeLevel": "regular",
+      "weeklyHours": 7,
+      "priorExperience": "none",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "REGISTER",
+    "expected_confidence": "High",
+    "expected_mechanism": "score-only",
+    "will_fail": false,
+    "notes": ""
+  },
+  {
+    "id": "P2-D",
+    "persona": "Priya, The Tentative First-Timer",
+    "description": "Olympic — competitive runner compensates for tight timeline",
+    "weeks": 10,
+    "input": {
+      "distance": "Olympic",
+      "swimLevel": "open-water",
+      "runLevel": "competitive",
+      "bikeLevel": "regular",
+      "weeklyHours": 8,
+      "priorExperience": "none",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "REGISTER",
+    "expected_confidence": "Medium",
+    "expected_mechanism": "score-only",
+    "will_fail": false,
+    "notes": ""
+  },
+  {
+    "id": "P3-A",
+    "persona": "Jordan, The Confident Athlete",
+    "description": "Olympic — strong swim+run but no bike; expected DEFER Medium",
+    "weeks": 12,
+    "input": {
+      "distance": "Olympic",
+      "swimLevel": "open-water",
+      "runLevel": "competitive",
+      "bikeLevel": "no-bike",
+      "weeklyHours": 6,
+      "priorExperience": "none",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "DEFER",
+    "expected_confidence": "Medium",
+    "expected_mechanism": "score-only",
+    "will_fail": false,
+    "notes": "No-bike penalty keeps score in DEFER Medium range."
+  },
+  {
+    "id": "P3-B",
+    "persona": "Jordan, The Confident Athlete",
+    "description": "Sprint — non-runner with casual bike; expected DEFER Medium",
+    "weeks": 12,
+    "input": {
+      "distance": "Sprint",
+      "swimLevel": "open-water",
+      "runLevel": "non-runner",
+      "bikeLevel": "casual",
+      "weeklyHours": 5,
+      "priorExperience": "none",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "REGISTER",
+    "expected_confidence": "Medium",
+    "expected_mechanism": "score-only: Sprint non-runner does not sink score",
+    "will_fail": false,
+    "notes": ""
+  },
+  {
+    "id": "P3-C",
+    "persona": "Jordan, The Confident Athlete",
+    "description": "Olympic — pool swimmer but competitive runner and solid bike",
+    "weeks": 14,
+    "input": {
+      "distance": "Olympic",
+      "swimLevel": "comfortable-pool",
+      "runLevel": "competitive",
+      "bikeLevel": "regular",
+      "weeklyHours": 8,
+      "priorExperience": "none",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "REGISTER",
+    "expected_confidence": "Medium",
+    "expected_mechanism": "score-only",
+    "will_fail": false,
+    "notes": ""
+  },
+  {
+    "id": "P3-D",
+    "persona": "Jordan, The Confident Athlete",
+    "description": "Sprint — all-round strong profile, expects REGISTER High",
+    "weeks": 10,
+    "input": {
+      "distance": "Sprint",
+      "swimLevel": "open-water",
+      "runLevel": "competitive",
+      "bikeLevel": "regular",
+      "weeklyHours": 7,
+      "priorExperience": "none",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "REGISTER",
+    "expected_confidence": "High",
+    "expected_mechanism": "score-only",
+    "will_fail": false,
+    "notes": ""
+  },
+  {
+    "id": "P4-A",
+    "persona": "Ramki, The Excited First-Timer",
+    "description": "Olympic with basic-pool swim — swim hard-rule must fire, not timeline",
+    "weeks": 14,
+    "input": {
+      "distance": "Olympic",
+      "swimLevel": "basic-pool",
+      "runLevel": "regular",
+      "bikeLevel": "regular",
+      "weeklyHours": 7,
+      "priorExperience": "none",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "DEFER",
+    "expected_confidence": "High",
+    "expected_mechanism": "hard-rule: olympic+basic-pool",
+    "will_fail": false,
+    "notes": "Most important case — must fire on swim rule, not timeline rule."
+  },
+  {
+    "id": "P4-B",
+    "persona": "Ramki, The Excited First-Timer",
+    "description": "Sprint with basic-pool — swim score drop pushes to DEFER Medium",
+    "weeks": 8,
+    "input": {
+      "distance": "Sprint",
+      "swimLevel": "basic-pool",
+      "runLevel": "regular",
+      "bikeLevel": "regular",
+      "weeklyHours": 6,
+      "priorExperience": "none",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "DEFER",
+    "expected_confidence": "Medium",
+    "expected_mechanism": "score-only: basic-pool pulls swim score",
+    "will_fail": false,
+    "notes": ""
+  },
+  {
+    "id": "P4-C",
+    "persona": "Ramki, The Excited First-Timer",
+    "description": "Olympic — cannot-swim fires before any other rule",
+    "weeks": 6,
+    "input": {
+      "distance": "Olympic",
+      "swimLevel": "cannot-swim",
+      "runLevel": "regular",
+      "bikeLevel": "regular",
+      "weeklyHours": 7,
+      "priorExperience": "none",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "DEFER",
+    "expected_confidence": "High",
+    "expected_mechanism": "hard-rule: cannot-swim",
+    "will_fail": false,
+    "notes": ""
+  },
+  {
+    "id": "P4-D",
+    "persona": "Ramki, The Excited First-Timer",
+    "description": "Sprint — open-water swim resolves the blocker, should REGISTER",
+    "weeks": 12,
+    "input": {
+      "distance": "Sprint",
+      "swimLevel": "open-water",
+      "runLevel": "regular",
+      "bikeLevel": "regular",
+      "weeklyHours": 7,
+      "priorExperience": "none",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "REGISTER",
+    "expected_confidence": "High",
+    "expected_mechanism": "score-only: swim gap resolved",
+    "will_fail": false,
+    "notes": ""
+  },
+  {
+    "id": "P5-A",
+    "persona": "The Lapsed Athlete",
+    "description": "Olympic — experienced but occasional run pulls score below REGISTER threshold",
+    "weeks": 14,
+    "input": {
+      "distance": "Olympic",
+      "swimLevel": "open-water",
+      "runLevel": "occasional",
+      "bikeLevel": "regular",
+      "weeklyHours": 6,
+      "priorExperience": "experienced",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "DEFER",
+    "expected_confidence": "Medium",
+    "expected_mechanism": "score-only: zeroed run nullifies experience at Olympic+",
+    "will_fail": false,
+    "notes": ""
+  },
+  {
+    "id": "P5-B",
+    "persona": "The Lapsed Athlete",
+    "description": "Sprint — experienced athlete with recovered fitness should REGISTER",
+    "weeks": 10,
+    "input": {
+      "distance": "Sprint",
+      "swimLevel": "open-water",
+      "runLevel": "regular",
+      "bikeLevel": "regular",
+      "weeklyHours": 6,
+      "priorExperience": "experienced",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "REGISTER",
+    "expected_confidence": "High",
+    "expected_mechanism": "score-only: recovered fitness clears 70",
+    "will_fail": false,
+    "notes": ""
+  },
+  {
+    "id": "P5-C",
+    "persona": "The Lapsed Athlete",
+    "description": "70.3 — occasional run + tight timeline pushes to DEFER Medium",
+    "weeks": 18,
+    "input": {
+      "distance": "70.3",
+      "swimLevel": "open-water",
+      "runLevel": "occasional",
+      "bikeLevel": "regular",
+      "weeklyHours": 7,
+      "priorExperience": "experienced",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "DEFER",
+    "expected_confidence": "Medium",
+    "expected_mechanism": "score-only: occasional run + 70.3 timeline demands",
+    "will_fail": false,
+    "notes": ""
+  },
+  {
+    "id": "P5-D",
+    "persona": "The Lapsed Athlete",
+    "description": "Olympic — tight 8-week window + developing experience = DEFER Medium",
+    "weeks": 8,
+    "input": {
+      "distance": "Olympic",
+      "swimLevel": "open-water",
+      "runLevel": "regular",
+      "bikeLevel": "regular",
+      "weeklyHours": 5,
+      "priorExperience": "developing",
+      "workFamilyIntensity": "Medium"
+    },
+    "expected_verdict": "DEFER",
+    "expected_confidence": "Medium",
+    "expected_mechanism": "score-only: tight timeline + developing experience",
+    "will_fail": false,
+    "notes": ""
+  }
+]
