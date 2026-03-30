@@ -104,35 +104,61 @@ function checkHardDefer(
   input: ScoringInput,
   weeks: number
 ): string | null {
-  const { distance, swimLevel, runLevel, bikeLevel, weeklyHours } = input;
+  const { distance, swimLevel, runLevel, bikeLevel, weeklyHours, priorExperience } = input;
 
+  // Absolute: cannot swim
   if (swimLevel === "cannot-swim") {
     return "Cannot swim — swimming is non-negotiable in triathlon.";
   }
-  if (weeks < 4) {
-    return "Race is fewer than 4 weeks away — insufficient preparation window.";
-  }
+
+  // Absolute: Olympic+ with poor swim
   if (
     isOlympicOrAbove(distance) &&
     (swimLevel === "basic-pool" || swimLevel === "cannot-swim")
   ) {
     return "Olympic+ distances require open-water swimming comfort.";
   }
-  if (
-    isLongDistance(distance) &&
-    runLevel === "non-runner"
-  ) {
+
+  // Absolute: critical training deficit
+  if (weeklyHours < 3 && weeks < 8) {
+    return "Less than 3 hours/week training with under 8 weeks to race — critical training deficit for any triathlon distance.";
+  }
+
+  // Absolute: 70.3/Ironman + non-runner
+  if (isLongDistance(distance) && runLevel === "non-runner") {
     return "70.3/Ironman run legs require a solid running base — 21km or 42km on foot demands consistent run training.";
   }
+
+  // Absolute: Ironman + no-bike/casual
   if (
     distance === "Full Ironman" &&
     (bikeLevel === "no-bike" || bikeLevel === "casual")
   ) {
     return "Full Ironman requires a strong cycling base — the 180km / 112mi bike leg demands regular long rides.";
   }
-  if (weeklyHours < 3 && weeks < 8) {
-    return "Less than 3 hours/week training with under 8 weeks to race — critical training deficit for any triathlon distance.";
+
+  // Experience-distance gap: Full Ironman requires veteran/experienced minimum
+  if (distance === "Full Ironman" && priorExperience === "none") {
+    return "Full Ironman with no prior triathlon experience — build up through shorter distances first.";
   }
+  if (distance === "Full Ironman" && priorExperience === "novice") {
+    return "Full Ironman requires substantial race experience — complete Sprint and Olympic distances before attempting an Ironman.";
+  }
+  if (distance === "Full Ironman" && priorExperience === "developing") {
+    return "Full Ironman requires experienced-level preparation — complete at least 6+ shorter races or a Half-Iron before attempting the full distance.";
+  }
+
+  // Context-sensitive short-timeline rules (replaces blanket weeks < 4)
+  if (weeks < 4) {
+    if (priorExperience === "none") {
+      return "Race is fewer than 4 weeks away with no prior triathlon experience — insufficient preparation window.";
+    }
+    if (priorExperience === "novice" && isOlympicOrAbove(distance)) {
+      return "Race is fewer than 4 weeks away — Olympic+ distances require more preparation time for novice athletes.";
+    }
+    // Note: weeks < 4 AND score < 52 is enforced as a post-score check in calculateReadiness
+  }
+
   return null;
 }
 
@@ -398,26 +424,41 @@ export function calculateReadiness(input: ScoringInput): ScoringResult {
   };
   const distanceInfo = { name: distance, ...distanceDef };
 
+  // Post-score weeks check: weeks < 4 AND score < 52
+  const postScoreDefer =
+    !hardDeferReason && weeks < 4 && score < 52
+      ? "Race is fewer than 4 weeks away with insufficient readiness score — not enough preparation for this timeline."
+      : null;
+
+  const effectiveDeferReason = hardDeferReason ?? postScoreDefer;
+
   // Hard defer overrides everything
-  if (hardDeferReason) {
+  if (effectiveDeferReason) {
     return {
       decision: "DEFER",
       confidence: "High",
       score,
-      hardDeferReason,
+      hardDeferReason: effectiveDeferReason,
       scoreBreakdown: { timeline, swim, run, bike, lifestyle, experience },
       distanceInfo,
     };
   }
 
   // Apply decision thresholds
+  // 70.3 + none/novice experience raises the REGISTER threshold from 52 → 56
+  const registerThreshold =
+    distance === "70.3" &&
+    (input.priorExperience === "none" || input.priorExperience === "novice")
+      ? 56
+      : 52;
+
   let decision: "REGISTER" | "DEFER";
   let confidence: "High" | "Medium" | "Low";
 
   if (score >= 70) {
     decision = "REGISTER";
     confidence = "High";
-  } else if (score >= 52) {
+  } else if (score >= registerThreshold) {
     decision = "REGISTER";
     confidence = "Medium";
   } else if (score >= 38) {
