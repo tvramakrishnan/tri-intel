@@ -54,6 +54,7 @@ SCORE BREAKDOWN:
 - Running: ${scoreBreakdown.run.score}/${scoreBreakdown.run.max} — ${scoreBreakdown.run.label}
 - Cycling: ${scoreBreakdown.bike.score}/${scoreBreakdown.bike.max} — ${scoreBreakdown.bike.label}
 - Lifestyle: ${scoreBreakdown.lifestyle.score}/${scoreBreakdown.lifestyle.max} — ${scoreBreakdown.lifestyle.label}
+- Experience: ${scoreBreakdown.experience.score}/${scoreBreakdown.experience.max} — ${scoreBreakdown.experience.label}
 
 RACE DETAILS:
 - Race Name: ${raceName}
