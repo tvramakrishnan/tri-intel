@@ -97,6 +97,15 @@ Return ONLY this JSON:
       messages: [{ role: "user", content: prompt }],
     });
 
+    console.log("LLM usage:", {
+      model: response.model,
+      input_tokens: response.usage.input_tokens,
+      output_tokens: response.usage.output_tokens,
+      decision: scoring.decision,
+      confidence: scoring.confidence,
+      score: scoring.score,
+    });
+
     const textBlock = response.content.find((b) => b.type === "text");
     if (!textBlock || textBlock.type !== "text") {
       return NextResponse.json(

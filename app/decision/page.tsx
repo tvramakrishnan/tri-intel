@@ -379,6 +379,9 @@ export default function DecisionPage() {
               <ScoreBar label="Running" component={result.scoreBreakdown.run} />
               <ScoreBar label="Cycling" component={result.scoreBreakdown.bike} />
               <ScoreBar label="Lifestyle" component={result.scoreBreakdown.lifestyle} />
+              {result.scoreBreakdown.experience && (
+                <ScoreBar label="Experience" component={result.scoreBreakdown.experience} />
+              )}
             </div>
           </div>
         )}
