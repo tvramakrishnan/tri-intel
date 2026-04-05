@@ -412,7 +412,7 @@ export default function EvaluatePage() {
               </div>
             </div>
 
-            {/* Swimming */}
+            {/* Swim */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Swim <span style={{ color: "#C8502A" }}>*</span>
@@ -424,7 +424,19 @@ export default function EvaluatePage() {
               />
             </div>
 
-            {/* Running */}
+            {/* Bike */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-3">
+                Bike <span style={{ color: "#C8502A" }}>*</span>
+              </label>
+              <HorizontalPills
+                options={BIKE_OPTIONS}
+                selected={form.bikeLevel}
+                onSelect={(v) => set("bikeLevel", v)}
+              />
+            </div>
+
+            {/* Run */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
                 Run <span style={{ color: "#C8502A" }}>*</span>
@@ -436,15 +448,15 @@ export default function EvaluatePage() {
               />
             </div>
 
-            {/* Cycling */}
+            {/* Race experience */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Bike <span style={{ color: "#C8502A" }}>*</span>
+                Race experience <span style={{ color: "#C8502A" }}>*</span>
               </label>
               <HorizontalPills
-                options={BIKE_OPTIONS}
-                selected={form.bikeLevel}
-                onSelect={(v) => set("bikeLevel", v)}
+                options={EXPERIENCE_OPTIONS}
+                selected={form.priorExperience}
+                onSelect={(v) => set("priorExperience", v)}
               />
             </div>
           </SectionCard>
