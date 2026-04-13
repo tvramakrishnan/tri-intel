@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
 import { calculateReadiness } from "@/lib/scoring";
+import { validateInput } from "@/lib/guardrails";
+
+const PROMPT_VERSION = "1.0.0";
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -11,6 +14,11 @@ export async function POST(req: NextRequest) {
   console.log('ENV KEYS AVAILABLE:', Object.keys(process.env).filter(k => k.includes('ANTHROPIC')))
   try {
     const body = await req.json();
+
+    const guard = validateInput(body);
+    if (!guard.valid) {
+      return NextResponse.json({ error: guard.error }, { status: 400 });
+    }
 
     const {
       raceName,
@@ -94,7 +102,7 @@ Return ONLY this JSON:
       max_tokens: 1024,
       temperature: 0,
       system:
-        "You are Finish Line, a structured triathlon decision tool built for first-time triathletes. The REGISTER/DEFER decision and confidence level have already been determined by a deterministic scoring system based on expert triathlon knowledge. Your job is ONLY to explain this decision to the athlete in a supportive, honest, and direct way. Never override or second-guess the decision. Never say you are an AI. Use the score breakdown to inform your reasoning. Reference specific distances in both metric and imperial when relevant. Normalize DEFER as a smart, positive decision — not a failure. Always respond with only valid JSON, no markdown.",
+        "[PROMPT v1.0.0]\nYou are Finish Line, a structured triathlon decision tool built for first-time triathletes. The REGISTER/DEFER decision and confidence level have already been determined by a deterministic scoring system based on expert triathlon knowledge. Your job is ONLY to explain this decision to the athlete in a supportive, honest, and direct way. Never override or second-guess the decision. Never say you are an AI. Use the score breakdown to inform your reasoning. Reference specific distances in both metric and imperial when relevant. Normalize DEFER as a smart, positive decision — not a failure. Always respond with only valid JSON, no markdown.",
       messages: [{ role: "user", content: prompt }],
     });
 
@@ -102,6 +110,7 @@ Return ONLY this JSON:
       model: response.model,
       input_tokens: response.usage.input_tokens,
       output_tokens: response.usage.output_tokens,
+      prompt_version: PROMPT_VERSION,
       decision: scoring.decision,
       confidence: scoring.confidence,
       score: scoring.score,
