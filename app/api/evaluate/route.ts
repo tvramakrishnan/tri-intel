@@ -12,6 +12,8 @@ const client = new Anthropic({
 });
 
 export async function POST(req: NextRequest) {
+  console.log("KEY_DEBUG:", process.env.ANTHROPIC_API_KEY?.slice(0, 20) ?? "missing");
+  console.log("KEY_LENGTH:", process.env.ANTHROPIC_API_KEY?.length ?? 0);
   console.log('ENV KEY:', process.env.ANTHROPIC_API_KEY?.slice(0,20))
   console.log('ENV KEYS AVAILABLE:', Object.keys(process.env).filter(k => k.includes('ANTHROPIC')))
   try {
