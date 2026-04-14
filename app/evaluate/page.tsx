@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { readStravaMappedCookie, clearStravaMappedCookie } from '@/lib/strava/client';
+import { StravaMapperOutput } from '@/lib/strava/types';
 
 type FormData = {
   raceName: string;
@@ -207,6 +209,8 @@ export default function EvaluatePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [stravaData, setStravaData] = useState<StravaMapperOutput | null>(null);
+  const [stravaApplied, setStravaApplied] = useState(false);
 
   const STORAGE_KEY = "finishline-form-draft";
 
@@ -242,6 +246,20 @@ export default function EvaluatePage() {
       // ignore quota errors
     }
   }, [form]);
+
+  // Read Strava mapped data from cookie on page load
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const stravaStatus = params.get('strava');
+
+    if (stravaStatus === 'connected') {
+      const mapped = readStravaMappedCookie();
+      if (mapped) {
+        setStravaData(mapped);
+        clearStravaMappedCookie();
+      }
+    }
+  }, []);
 
   const set = (key: keyof FormData, value: string | number) =>
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -304,6 +322,83 @@ export default function EvaluatePage() {
             Answer honestly. The more accurate your inputs, the better your decision.
           </p>
         </div>
+
+        {/* Strava Import */}
+        {!stravaApplied && !stravaData && (
+          <div className="mb-6 p-4 rounded-xl border border-gray-200 bg-white flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-gray-800">Import from Strava</p>
+              <p className="text-xs text-gray-500 mt-0.5">
+                Pre-fill your fitness levels from real activity data
+              </p>
+            </div>
+            <a
+              href="/api/strava/auth"
+              className="text-sm font-medium px-4 py-2 rounded-lg text-white"
+              style={{ backgroundColor: '#FC4C02' }}
+            >
+              Connect Strava
+            </a>
+          </div>
+        )}
+
+        {/* Strava suggestion banner */}
+        {stravaData && !stravaApplied && (
+          <div className="mb-6 p-4 rounded-xl border border-orange-200 bg-orange-50">
+            <p className="text-sm font-medium text-gray-800 mb-1">
+              Strava data imported
+              {stravaData.confidence === 'low' && (
+                <span className="ml-2 text-xs text-orange-600 font-normal">
+                  · Limited data detected — please review carefully
+                </span>
+              )}
+            </p>
+            <p className="text-xs text-gray-500 mb-3">
+              {stravaData.confidenceReason}. These suggestions are based on your activity history — adjust any that don't reflect your current fitness.
+            </p>
+            <div className="flex gap-3 text-xs text-gray-600 mb-3 flex-wrap">
+              <span>🏊 Swim: <strong>{stravaData.swimLevel}</strong></span>
+              <span>🚴 Bike: <strong>{stravaData.bikeLevel}</strong></span>
+              <span>🏃 Run: <strong>{stravaData.runLevel}</strong></span>
+              <span>⏱ Weekly hours: <strong>{stravaData.weeklyHours}</strong></span>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setForm(prev => ({
+                    ...prev,
+                    swimLevel: stravaData.swimLevel,
+                    bikeLevel: stravaData.bikeLevel,
+                    runLevel: stravaData.runLevel,
+                    weeklyHours: stravaData.weeklyHours,
+                  }));
+                  setStravaApplied(true);
+                }}
+                className="text-xs font-medium px-3 py-1.5 rounded-lg text-white"
+                style={{ backgroundColor: '#FC4C02' }}
+              >
+                Apply suggestions
+              </button>
+              <button
+                type="button"
+                onClick={() => setStravaData(null)}
+                className="text-xs font-medium px-3 py-1.5 rounded-lg border border-gray-300 text-gray-600 bg-white"
+              >
+                Fill in manually
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Strava applied confirmation */}
+        {stravaApplied && (
+          <div className="mb-6 p-3 rounded-xl border border-green-200 bg-green-50">
+            <p className="text-xs text-green-700">
+              ✓ Strava data applied — fields pre-filled below. Adjust anything that doesn't look right.
+            </p>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
 
