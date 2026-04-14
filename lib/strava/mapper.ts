@@ -5,6 +5,7 @@
 import { StravaActivity, StravaMapperInput, StravaMapperOutput } from './types';
 
 const SPORT_LOOKBACK_WEEKS = 12;
+const SWIM_LOOKBACK_WEEKS = 104; // 2 years — accounts for seasonal open water swimming
 const HOURS_LOOKBACK_WEEKS = 4;
 
 // Activity types Strava uses
@@ -117,12 +118,13 @@ function assessConfidence(
 export function mapStravaToScoringInput(input: StravaMapperInput): StravaMapperOutput {
   const now = new Date(input.fetchedAt);
 
+  const swimWindow  = filterByWindow(input.activities, SWIM_LOOKBACK_WEEKS, now);
   const sportWindow = filterByWindow(input.activities, SPORT_LOOKBACK_WEEKS, now);
   const hoursWindow = filterByWindow(input.activities, HOURS_LOOKBACK_WEEKS, now);
 
-  const swimLevel = mapSwimLevel(sportWindow);
-  const bikeLevel = mapBikeLevel(sportWindow, SPORT_LOOKBACK_WEEKS);
-  const runLevel  = mapRunLevel(sportWindow, SPORT_LOOKBACK_WEEKS);
+  const swimLevel   = mapSwimLevel(swimWindow);
+  const bikeLevel   = mapBikeLevel(sportWindow, SPORT_LOOKBACK_WEEKS);
+  const runLevel    = mapRunLevel(sportWindow, SPORT_LOOKBACK_WEEKS);
   const weeklyHours = mapWeeklyHours(hoursWindow, HOURS_LOOKBACK_WEEKS);
 
   const { confidence, reason } = assessConfidence(sportWindow, SPORT_LOOKBACK_WEEKS);
