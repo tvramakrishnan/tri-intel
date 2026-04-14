@@ -5,6 +5,8 @@ import { validateInput } from "@/lib/guardrails";
 
 const PROMPT_VERSION = "1.0.0";
 
+console.log("PROMPT_VERSION check:", process.env.ANTHROPIC_API_KEY?.slice(0, 15) ?? "missing");
+
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
