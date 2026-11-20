@@ -20,18 +20,21 @@ async function exchangeToken(code: string): Promise<{ access_token: string }> {
   });
 
   if (!res.ok) {
-    throw new Error('Failed to exchange Strava auth code for token');
+    throw new Error(`Failed to exchange Strava auth code for token (${res.status})`);
   }
 
   return res.json();
 }
 
-async function fetchAthlete(accessToken: string): Promise<StravaAthlete> {
+async function fetchAthlete(accessToken: string): Promise<StravaAthlete | null> {
   const res = await fetch('https://www.strava.com/api/v3/athlete', {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
 
-  if (!res.ok) throw new Error('Failed to fetch Strava athlete profile');
+  if (!res.ok) {
+    console.warn('Strava athlete profile unavailable:', res.status);
+    return null;
+  }
   return res.json();
 }
 
@@ -46,7 +49,7 @@ async function fetchActivities(accessToken: string): Promise<StravaActivity[]> {
       { headers: { Authorization: `Bearer ${accessToken}` } }
     );
 
-    if (!res.ok) throw new Error('Failed to fetch Strava activities');
+    if (!res.ok) throw new Error(`Failed to fetch Strava activities (${res.status})`);
 
     const activities: StravaActivity[] = await res.json();
     if (activities.length === 0) break;
@@ -80,7 +83,12 @@ export async function GET(req: NextRequest) {
 
     const mapped = mapStravaToScoringInput({
       activities,
-      athlete,
+      athlete: athlete ?? {
+        id: 0,
+        firstname: '',
+        lastname: '',
+        measurement_preference: 'meters',
+      },
       fetchedAt: new Date().toISOString(),
     });
 
