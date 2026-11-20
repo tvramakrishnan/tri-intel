@@ -31,7 +31,10 @@ type DecisionResult = {
     lifestyle: ScoreComponent;
   };
   distanceInfo: { name: string; swim: string; bike: string; run: string };
+  explanationPending?: boolean;
 };
+
+type ExplainState = "loading" | "ready" | "failed";
 
 // ─── Tooltip ──────────────────────────────────────────────────────────────────
 function Tooltip({ text }: { text: string }) {
@@ -106,6 +109,7 @@ export default function DecisionPage() {
   const [showAssumptions, setShowAssumptions] = useState(false);
   const [feedback, setFeedback] = useState<"up" | "down" | null>(null);
   const [feedbackSent, setFeedbackSent] = useState(false);
+  const [explainState, setExplainState] = useState<ExplainState>("ready");
 
   useEffect(() => {
     try {
@@ -115,8 +119,12 @@ export default function DecisionPage() {
         setError("No result found. Please go back and submit the form.");
         return;
       }
-      setResult(JSON.parse(raw));
+      const parsed: DecisionResult = JSON.parse(raw);
+      setResult(parsed);
       if (formRaw) setRaceName(JSON.parse(formRaw).raceName || "");
+      if (parsed.explanationPending && formRaw) {
+        loadExplanation(JSON.parse(formRaw));
+      }
       setAssessedDate(
         new Date().toLocaleDateString("en-US", {
           month: "long",
@@ -128,6 +136,35 @@ export default function DecisionPage() {
       setError("Could not load results. Please try again.");
     }
   }, []);
+
+  // The verdict is already on screen; the explanation fills in when Claude returns.
+  // If the model call fails, the verdict and breakdown still stand on their own.
+  async function loadExplanation(form: Record<string, unknown>) {
+    setExplainState("loading");
+    try {
+      const res = await fetch("/api/evaluate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, mode: "explain" }),
+      });
+      if (!res.ok) throw new Error("explain failed");
+      const full: DecisionResult = await res.json();
+      setResult(full);
+      try { sessionStorage.setItem("finishline-result", JSON.stringify(full)); } catch {}
+      setExplainState("ready");
+    } catch {
+      setExplainState("failed");
+    }
+  }
+
+  const retryExplanation = () => {
+    try {
+      const formRaw = sessionStorage.getItem("finishline-form");
+      if (formRaw) loadExplanation(JSON.parse(formRaw));
+    } catch {
+      setExplainState("failed");
+    }
+  };
 
   const sendFeedback = async (type: "up" | "down") => {
     setFeedback(type);
@@ -266,6 +303,39 @@ export default function DecisionPage() {
           </div>
         )}
 
+        {explainState === "loading" && (
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="animate-spin w-4 h-4 border-2 border-gray-300 rounded-full" style={{ borderTopColor: ACCENT_COLOR }} />
+              <p className="text-sm font-medium text-gray-700">Writing your personalised explanation…</p>
+            </div>
+            <div className="space-y-2 animate-pulse">
+              <div className="h-3 bg-gray-100 rounded w-11/12" />
+              <div className="h-3 bg-gray-100 rounded w-10/12" />
+              <div className="h-3 bg-gray-100 rounded w-8/12" />
+            </div>
+            <p className="text-xs text-gray-400 mt-4">Your verdict and score above are final. They come from the scoring engine, not the AI.</p>
+          </div>
+        )}
+
+        {explainState === "failed" && (
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <p className="text-sm text-gray-700 mb-3">
+              The written explanation didn&apos;t load this time. Your verdict and the readiness breakdown below come from the scoring engine and don&apos;t depend on it.
+            </p>
+            <button
+              type="button"
+              onClick={retryExplanation}
+              className="px-4 py-2 rounded-full text-white text-sm font-semibold"
+              style={{ backgroundColor: ACCENT_COLOR }}
+            >
+              Try the explanation again
+            </button>
+          </div>
+        )}
+
+        {explainState === "ready" && (
+        <>
         {/* Top Drivers + Key Risks */}
         <div className="grid md:grid-cols-2 gap-5">
           <Card
@@ -359,6 +429,8 @@ export default function DecisionPage() {
               </div>
             )}
           </div>
+        )}
+        </>
         )}
 
         {/* Readiness breakdown */}

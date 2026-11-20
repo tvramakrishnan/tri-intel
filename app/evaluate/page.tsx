@@ -286,7 +286,9 @@ export default function EvaluatePage() {
       const res = await fetch("/api/evaluate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        // Verdict only: the deterministic engine answers in milliseconds.
+        // The decision page fetches Claude's explanation after it renders.
+        body: JSON.stringify({ ...form, mode: "score" }),
       });
 
       if (!res.ok) {

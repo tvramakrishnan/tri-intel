@@ -5,15 +5,18 @@ import { validateInput } from "@/lib/guardrails";
 
 const PROMPT_VERSION = "1.0.0";
 
-console.log("PROMPT_VERSION check:", process.env.ANTHROPIC_API_KEY?.slice(0, 15) ?? "missing");
-
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
+  timeout: 30_000, // explanation is non-blocking; never let it hang
+  maxRetries: 1,
 });
 
+// mode "score"   → deterministic verdict only, no model call (returns in ms)
+// mode "explain" → Claude explanation for a verdict the engine already made
+// no mode        → both in one response (original behaviour, kept for compatibility)
+type Mode = "score" | "explain" | "full";
+
 export async function POST(req: NextRequest) {
-  console.log('ENV KEY:', process.env.ANTHROPIC_API_KEY?.slice(0,20))
-  console.log('ENV KEYS AVAILABLE:', Object.keys(process.env).filter(k => k.includes('ANTHROPIC')))
   try {
     const body = await req.json();
 
@@ -52,6 +55,23 @@ export async function POST(req: NextRequest) {
     });
 
     const { scoreBreakdown, distanceInfo, hardDeferReason } = scoring;
+
+    const mode: Mode =
+      body.mode === "score" || body.mode === "explain" ? body.mode : "full";
+
+    const deterministic = {
+      decision: scoring.decision,
+      confidence: scoring.confidence,
+      score: scoring.score,
+      scoreBreakdown: scoring.scoreBreakdown,
+      distanceInfo: scoring.distanceInfo,
+      hardDeferReason: scoring.hardDeferReason,
+    };
+
+    if (mode === "score") {
+      // The verdict never waits on the model.
+      return NextResponse.json({ ...deterministic, explanationPending: true });
+    }
 
     // ── Build prompt for AI explanation ──────────────────────────────────────
     const prompt = `DETERMINISTIC DECISION: ${scoring.decision} (${scoring.confidence} confidence)
@@ -99,6 +119,7 @@ Return ONLY this JSON:
   "nextStep": "One specific, actionable recommendation for what to do right now"
 }`;
 
+    const startedAt = Date.now();
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
       max_tokens: 1024,
@@ -116,9 +137,10 @@ Return ONLY this JSON:
       decision: scoring.decision,
       confidence: scoring.confidence,
       score: scoring.score,
+      latency_ms: Date.now() - startedAt,
     });
 
-    const textBlock = response.content.find((b) => b.type === "text");
+    const textBlock = response.content.find((b: { type: string }) => b.type === "text");
     if (!textBlock || textBlock.type !== "text") {
       return NextResponse.json(
         { error: "No response from AI" },
@@ -142,16 +164,9 @@ Return ONLY this JSON:
       }
     }
 
-    // Merge AI explanation with deterministic scoring fields
-    return NextResponse.json({
-      ...parsed,
-      decision: scoring.decision,       // always trust the deterministic decision
-      confidence: scoring.confidence,   // always trust the deterministic confidence
-      score: scoring.score,
-      scoreBreakdown: scoring.scoreBreakdown,
-      distanceInfo: scoring.distanceInfo,
-      hardDeferReason: scoring.hardDeferReason,
-    });
+    // Merge AI explanation with deterministic scoring fields.
+    // The engine's fields are spread last, so the model can never change the verdict.
+    return NextResponse.json({ ...parsed, ...deterministic, explanationPending: false });
   } catch (err) {
     console.error("Evaluate API error:", err);
     if (err instanceof Anthropic.AuthenticationError) {
